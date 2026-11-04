@@ -16,7 +16,7 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
-      - name: Install SDK packages
+      - name: Install SDK 34
         run: |
           yes | sdkmanager --licenses > /dev/null 2>&1 || true
           sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
@@ -25,97 +25,15 @@ jobs:
         with:
           gradle-version: '8.7'
 
-      - name: Create the Android project
+      - name: Unpack the Android project
         run: |
-          set -e
-          mkdir -p app/src/main/java/ai/rabhai app/src/main/assets app/src/main/res/values
-
-          cat > settings.gradle.kts <<'EOF'
-          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
-          dependencyResolutionManagement { repositories { google(); mavenCentral() } }
-          rootProject.name = "RabhAI"
-          include(":app")
-          EOF
-
-          cat > build.gradle.kts <<'EOF'
-          plugins { id("com.android.application") version "8.5.2" apply false }
-          EOF
-
-          cat > gradle.properties <<'EOF'
-          org.gradle.jvmargs=-Xmx2048m
-          android.useAndroidX=true
-          EOF
-
-          cat > app/build.gradle.kts <<'EOF'
-          plugins { id("com.android.application") }
-          android {
-              namespace = "ai.rabhai"
-              compileSdk = 34
-              defaultConfig {
-                  applicationId = "ai.rabhai"
-                  minSdk = 24
-                  targetSdk = 34
-                  versionCode = 1
-                  versionName = "1.0"
-              }
-              buildTypes {
-                  getByName("debug") { isMinifyEnabled = false }
-              }
-          }
-          EOF
-
-          cat > app/src/main/AndroidManifest.xml <<'EOF'
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-              <application android:label="RabhAI" android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
-                  <activity android:name=".MainActivity" android:exported="true"
-                      android:screenOrientation="sensorLandscape"
-                      android:configChanges="orientation|screenSize|keyboardHidden">
-                      <intent-filter>
-                          <action android:name="android.intent.action.MAIN"/>
-                          <category android:name="android.intent.category.LAUNCHER"/>
-                      </intent-filter>
-                  </activity>
-              </application>
-          </manifest>
-          EOF
-
-          cat > app/src/main/java/ai/rabhai/MainActivity.kt <<'EOF'
-          package ai.rabhai
-
-          import android.app.Activity
-          import android.os.Bundle
-          import android.view.View
-          import android.webkit.WebView
-
-          class MainActivity : Activity() {
-              override fun onCreate(state: Bundle?) {
-                  super.onCreate(state)
-                  val web = WebView(this)
-                  web.settings.javaScriptEnabled = true
-                  web.settings.domStorageEnabled = true
-                  web.settings.mediaPlaybackRequiresUserGesture = false
-                  web.loadUrl("file:///android_asset/index.html")
-                  setContentView(web)
-                  window.decorView.systemUiVisibility =
-                      View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                      View.SYSTEM_UI_FLAG_FULLSCREEN or
-                      View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                      View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-              }
-          }
-          EOF
-
+          echo "H4sIAAAAAAAAA+2ZW3PaOBTHeeZTePxEHipzp5MN2aUsbZkllwkh2z5lhH1CVGzLlWQatu133+MbATdZEhZoO9VvJiHRXf6fc3wkiFXYOeVyudpqNaLPSqtRXv7MKFQa1Va1Gf8UyhWkXDAau19aoRBKRYVhFCT1nTG/e7TduvqfFGLRINixDWygf7Ol9d8Lif5S2Du0gefrX603Wlr/fXCvv0eZvxsjeL7+tXq5pvXfBzn9P9AZ3boRPF//eq1a1/rvg4f0p2y7JrCB/q1KQ+u/Dx7RX9Dx7dbM4Pn6NzECaP33wX/rf4JlHVuxGVNzMlUbzhEJ3GzWH9O/UmvWVvWv4vEP/b+81Z0+wi+uf0DtKZ2AQRlJNC8WmRdwoQzcr+DMIWgfJLOBfB2X5FXoOy7kK2YMPpEr/JWv+ATjKVPkbxjHtUXbpVIay3ZmHBrZn6UD43PRQPgMhGAOGDehb3C/K4AqKKFyCg6NZAW/Z20jZBiAIKsNDxa1M+oauA6jbaTLKKlbJu/rsY5IUIr5E0kijxjaggWq59OxCw52UyKEh1s73BsqLvCJPqW1Bw6j5y6dj1GFC/gYMgFyJEG8AalCAdj5hrpytbfLqTMSbsm8YS4cWpaVPtprfJCgLOY7cEduleea9zvCii73Ffgq3i4Os7Rb7ME/EQdsLqJaIudSgTdiV0yyMXMjSdqL1hFxq+H74WXv5HrUv3496Ly57p+c9C6G/ave9fCy3/3rvcHF2j6vR4PBsHvR650+pfXb/p+969POVf9N57J/9qQug877s9ElrqjzatCLW38tfi1+b5f7ocjF/9iG5JZPAJvkf2Wd/+2FnP4Yf7Z/B7CB/pWWPv/thQf0x9djuFUzeL7+jXpL5/97Iad/J8klTqjPbjAHIXee+//nWJf/V5p5/VuV6P5f5/+758hLpTZQal8epslk27xVKsDsUtq34FFJsvzd5h5azDQOFGmZeRynVkdoSC6zqWLcz9L9Q5eOwW2bF3i06PTNRbHCQaFt/pH9L9XcBesyKiWn/JIpF15RQV6HrittAeCncyTzZAeFrLdPo8HI8iHifiq4i84fgDuK8nBzJWdcTB/PcSYYJsjx+tumBF9yMcAW0qbBI/1s7t+wSfeW+hOQbZPfD/AlGXLI/oEvU5iPORXOW+Y4KzuJd8PitPwFJvMKxGrdYrdLDzTZa6ZG0pkkbchJp39qWg+MgaLAhIv8E8uNkrUig87otPu2d5Ef68h6ZLFHVqZJagrWki0cF4+szMiOdfL9g5HE/3HIXIdMBMWDNJkqud051sT/cvRlTz7/r1d1/N8HgRtOmC+NzwZzSiZGd7J075O5sHmAB+e0PL1liSKIDKgd3VGYi8ujJEziKAFzYehMsbJWj8scuKGhG91CYMRcuqlZmqXvPDBWhMf8ZKxqfVGGok1ArUwRMQMhcagud6KFVfLlp7jqaJIKKZv6PiCCWIvbqF25/1r/r1Wa3/h/tan9fx8k/o/5Pp1g8uUrDAQCAi6ZirKZKC5MOJ+4UDr4zfDoDPwuNhLUjf5PDOY8HuEck6yo1PiKPuVAAD7mOvb8AiR3w8i7N5kiHkxwrs4F/wC2In7qv2k+WWS+7YYOlMxDjCPmwa/tyhtBdvzuj1jn/5XyN/5faer3/1546vs/fYEa5kvSIFUzfm/Pk28njF/8FfpTQ6zU8wPBAxAKA/LW51jn/1iZ9/86Ntf+vwe4mGSx/8PMw6Ratl+88+6q5fpLL0v5SSghvRh8146/zfzeq9ZoNBqNRqPRaDQajUaj0Wg0Go1Go9FoNBqNRqPRZPwLyILG4gBQAAA=" | base64 -d | tar xz -C .
+          ls -R . | head -40
           if [ -f index.html ]; then cp index.html app/src/main/assets/index.html; fi
-          if [ ! -f app/src/main/assets/index.html ]; then
-            echo "<h1 style='color:#f5b942'>Upload index.html to the repository root</h1>" > app/src/main/assets/index.html
-          fi
-          echo "=== project ready ==="
-          find . -maxdepth 4 -not -path './.git*' | sort | head -30
-          echo "=== asset size ==="
-          ls -l app/src/main/assets/index.html
+          ls -l app/src/main/assets/
 
-      - name: Build debug APK
-        run: gradle assembleDebug --no-daemon --info
+      - name: Build APK
+        run: gradle assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
