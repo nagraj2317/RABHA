@@ -16,11 +16,19 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.4'
-      - name: Build debug APK
-        run: gradle assembleDebug --no-daemon --stacktrace
+      - name: Locate the project and build
+        run: |
+          echo "--- repository tree ---"
+          find . -maxdepth 3 -not -path './.git*' | sort | head -40
+          SETTINGS=$(find . -name 'settings.gradle.kts' -not -path './.git/*' | head -1)
+          if [ -z "$SETTINGS" ]; then echo "settings.gradle.kts not found"; exit 1; fi
+          DIR=$(dirname "$SETTINGS")
+          echo "--- building in $DIR ---"
+          cd "$DIR"
+          gradle assembleDebug --no-daemon --stacktrace
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: rabhai-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: '**/build/outputs/apk/debug/*.apk'
           if-no-files-found: error
