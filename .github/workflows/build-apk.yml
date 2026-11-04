@@ -16,6 +16,11 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
+      - name: Install SDK packages
+        run: |
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
@@ -52,6 +57,9 @@ jobs:
                   targetSdk = 34
                   versionCode = 1
                   versionName = "1.0"
+              }
+              buildTypes {
+                  getByName("debug") { isMinifyEnabled = false }
               }
           }
           EOF
@@ -99,12 +107,15 @@ jobs:
 
           if [ -f index.html ]; then cp index.html app/src/main/assets/index.html; fi
           if [ ! -f app/src/main/assets/index.html ]; then
-            echo "<h1 style='color:#f5b942;font-family:sans-serif'>Upload index.html to the repository root</h1>" > app/src/main/assets/index.html
+            echo "<h1 style='color:#f5b942'>Upload index.html to the repository root</h1>" > app/src/main/assets/index.html
           fi
-          echo "--- project ready ---"; find . -maxdepth 4 -not -path './.git*' | sort | head -30
+          echo "=== project ready ==="
+          find . -maxdepth 4 -not -path './.git*' | sort | head -30
+          echo "=== asset size ==="
+          ls -l app/src/main/assets/index.html
 
       - name: Build debug APK
-        run: gradle assembleDebug --no-daemon
+        run: gradle assembleDebug --no-daemon --info
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
