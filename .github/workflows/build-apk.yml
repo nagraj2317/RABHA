@@ -8,27 +8,107 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
+
       - uses: android-actions/setup-android@v3
+
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.4'
-      - name: Locate the project and build
+          gradle-version: '8.7'
+
+      - name: Create the Android project
         run: |
-          echo "--- repository tree ---"
-          find . -maxdepth 3 -not -path './.git*' | sort | head -40
-          SETTINGS=$(find . -name 'settings.gradle.kts' -not -path './.git/*' | head -1)
-          if [ -z "$SETTINGS" ]; then echo "settings.gradle.kts not found"; exit 1; fi
-          DIR=$(dirname "$SETTINGS")
-          echo "--- building in $DIR ---"
-          cd "$DIR"
-          gradle assembleDebug --no-daemon --stacktrace
+          set -e
+          mkdir -p app/src/main/java/ai/rabhai app/src/main/assets app/src/main/res/values
+
+          cat > settings.gradle.kts <<'EOF'
+          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+          dependencyResolutionManagement { repositories { google(); mavenCentral() } }
+          rootProject.name = "RabhAI"
+          include(":app")
+          EOF
+
+          cat > build.gradle.kts <<'EOF'
+          plugins { id("com.android.application") version "8.5.2" apply false }
+          EOF
+
+          cat > gradle.properties <<'EOF'
+          org.gradle.jvmargs=-Xmx2048m
+          android.useAndroidX=true
+          EOF
+
+          cat > app/build.gradle.kts <<'EOF'
+          plugins { id("com.android.application") }
+          android {
+              namespace = "ai.rabhai"
+              compileSdk = 34
+              defaultConfig {
+                  applicationId = "ai.rabhai"
+                  minSdk = 24
+                  targetSdk = 34
+                  versionCode = 1
+                  versionName = "1.0"
+              }
+          }
+          EOF
+
+          cat > app/src/main/AndroidManifest.xml <<'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <application android:label="RabhAI" android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+                  <activity android:name=".MainActivity" android:exported="true"
+                      android:screenOrientation="sensorLandscape"
+                      android:configChanges="orientation|screenSize|keyboardHidden">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN"/>
+                          <category android:name="android.intent.category.LAUNCHER"/>
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          EOF
+
+          cat > app/src/main/java/ai/rabhai/MainActivity.kt <<'EOF'
+          package ai.rabhai
+
+          import android.app.Activity
+          import android.os.Bundle
+          import android.view.View
+          import android.webkit.WebView
+
+          class MainActivity : Activity() {
+              override fun onCreate(state: Bundle?) {
+                  super.onCreate(state)
+                  val web = WebView(this)
+                  web.settings.javaScriptEnabled = true
+                  web.settings.domStorageEnabled = true
+                  web.settings.mediaPlaybackRequiresUserGesture = false
+                  web.loadUrl("file:///android_asset/index.html")
+                  setContentView(web)
+                  window.decorView.systemUiVisibility =
+                      View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                      View.SYSTEM_UI_FLAG_FULLSCREEN or
+                      View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                      View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+              }
+          }
+          EOF
+
+          if [ -f index.html ]; then cp index.html app/src/main/assets/index.html; fi
+          if [ ! -f app/src/main/assets/index.html ]; then
+            echo "<h1 style='color:#f5b942;font-family:sans-serif'>Upload index.html to the repository root</h1>" > app/src/main/assets/index.html
+          fi
+          echo "--- project ready ---"; find . -maxdepth 4 -not -path './.git*' | sort | head -30
+
+      - name: Build debug APK
+        run: gradle assembleDebug --no-daemon
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: rabhai-apk
-          path: '**/build/outputs/apk/debug/*.apk'
+          path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
