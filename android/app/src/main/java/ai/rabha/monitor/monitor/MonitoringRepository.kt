@@ -13,7 +13,7 @@ sealed interface MonitorState<out T> {
 }
 
 data class Traffic(val uploadBytes: Long, val downloadBytes: Long)
-data class AppUsage(val packageName: String, val label: String, val usageMs: Long)
+data class AppUsage(val packageName: String, val label: String, val usageMs: Long, val icon: android.graphics.drawable.Drawable?)
 
 class MonitoringRepository(private val context: Context) {
 
@@ -50,10 +50,11 @@ class MonitoringRepository(private val context: Context) {
             .sortedByDescending { it.totalTimeInForeground }
             .take(15)
             .map { s ->
-                val label = runCatching {
-                    pm.getApplicationLabel(pm.getApplicationInfo(s.packageName, 0)).toString()
-                }.getOrDefault(s.packageName)
-                AppUsage(s.packageName, label, s.totalTimeInForeground)
+                val info = runCatching { pm.getApplicationInfo(s.packageName, 0) }.getOrNull()
+                val label = info?.let { runCatching { pm.getApplicationLabel(it).toString() }.getOrNull() }
+                    ?: s.packageName
+                val icon = info?.let { runCatching { pm.getApplicationIcon(it) }.getOrNull() }
+                AppUsage(s.packageName, label, s.totalTimeInForeground, icon)
             }
         return MonitorState.Available(rows)
     }
