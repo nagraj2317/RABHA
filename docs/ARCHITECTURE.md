@@ -2,7 +2,7 @@
 
 ## Android
 
-One Gradle module (`:app`), 15 packages, 62 Kotlin files. Each area owns its repository, its ViewModel
+One Gradle module (`:app`), 15 packages, 63 Kotlin files. Each area owns its repository, its ViewModel
 and — where a long-running job exists — its service.
 
 ```
