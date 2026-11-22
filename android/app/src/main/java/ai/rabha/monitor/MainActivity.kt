@@ -9,6 +9,7 @@ import ai.rabha.monitor.ui.theme.RabhaTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ai.rabha.monitor.service.MonitoringService.createChannels(this)
         setContent {
             RabhaTheme {
                 RabhaApp()
