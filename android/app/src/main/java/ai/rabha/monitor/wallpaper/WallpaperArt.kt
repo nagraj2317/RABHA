@@ -166,7 +166,7 @@ object WallpaperArt {
         vGradient(c, w, h, Color.rgb(3, 3, 8), Color.rgb(10, 6, 18), p)
         for (i in 0 until 46) {
             val x = ((i * 47.3 + sin(t * 0.6f + i).toFloat() * 60).toFloat() % w + w) % w
-            val y = ((i * 83.1 - t * (10 + i % 7)) % h + h) % h
+            val y = (((i * 83.1 - t * (10 + i % 7)) % h + h) % h).toFloat()
             val r = 18f + (i % 5) * 10f
             glow(c, x, y, r, Color.argb(70, Color.red(accent), Color.green(accent), Color.blue(accent)), p)
             p.color = accent
