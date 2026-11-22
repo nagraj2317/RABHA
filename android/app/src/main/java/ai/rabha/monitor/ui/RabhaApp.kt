@@ -63,10 +63,14 @@ fun RabhaApp() {
                 .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            UnavailableState(
-                title = selected.label,
-                reason = "This module is not connected yet. Nothing is shown here until real data is available."
-            )
+            if (selected == RabhaTab.Monitor) {
+                MonitorScreen()
+            } else {
+                UnavailableState(
+                    title = selected.label,
+                    reason = "This module is not connected yet. Nothing is shown here until real data is available."
+                )
+            }
         }
     }
 }
