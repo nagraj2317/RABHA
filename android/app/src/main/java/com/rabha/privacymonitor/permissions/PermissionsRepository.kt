@@ -128,7 +128,8 @@ class PermissionsRepository @Inject constructor(
                 DeclaredPermissionInfo(
                     packageName = info.packageName,
                     label = try {
-                        pm.getApplicationLabel(info.applicationInfo).toString()
+                        val appInfo = info.applicationInfo
+                        if (appInfo != null) pm.getApplicationLabel(appInfo).toString() else info.packageName
                     } catch (e: Exception) {
                         info.packageName
                     },

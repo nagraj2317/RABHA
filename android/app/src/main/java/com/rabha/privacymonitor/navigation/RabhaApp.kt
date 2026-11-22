@@ -5,10 +5,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Monitor
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -27,6 +25,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.rabha.privacymonitor.auth.LoginScreen
 import com.rabha.privacymonitor.core.RabhaColors
+import com.rabha.privacymonitor.core.RabhaIcons
 import com.rabha.privacymonitor.dashboard.DashboardScreen
 import com.rabha.privacymonitor.monitor.MonitorHubScreen
 import com.rabha.privacymonitor.notifications.NotificationsScreen
@@ -37,8 +36,8 @@ private data class Dest(val route: String, val label: String, val icon: ImageVec
 
 private val destinations = listOf(
     Dest("home", "Home", Icons.Filled.Home),
-    Dest("monitor", "Monitor", Icons.Filled.Monitor),
-    Dest("wallpapers", "Wallpapers", Icons.Filled.Wallpaper),
+    Dest("monitor", "Monitor", RabhaIcons.Monitor),
+    Dest("wallpapers", "Wallpapers", RabhaIcons.Wallpaper),
     Dest("notifications", "Alerts", Icons.Filled.Notifications),
     Dest("settings", "Settings", Icons.Filled.Settings)
 )

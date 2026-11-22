@@ -25,7 +25,7 @@ class AnimatedWallpaperService : WallpaperService() {
 
     override fun onCreateEngine(): Engine = AnimatedEngine()
 
-    inner class AnimatedEngine : Engine() {
+    inner class AnimatedEngine : Engine(), SurfaceHolder.Callback {
 
         private val handler = Handler(Looper.getMainLooper())
         private val paint = Paint().apply { isAntiAlias = true }
@@ -43,6 +43,7 @@ class AnimatedWallpaperService : WallpaperService() {
 
         override fun onCreate(surfaceHolder: SurfaceHolder) {
             super.onCreate(surfaceHolder)
+            surfaceHolder.addCallback(this)
             val style = getSharedPreferences(Constants.WALLPAPER_SELECTION, Context.MODE_PRIVATE)
                 .getString(Constants.WALLPAPER_ANIMATED_STYLE, "particles") ?: "particles"
             fps = if (style == "neon") 24 else 30

@@ -9,6 +9,7 @@ import com.rabha.privacymonitor.supabase.dto.UserConsentDto
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.rpc
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton

@@ -50,6 +50,7 @@ class AuthRepository @Inject constructor(
                 this.email = email
                 this.password = password
             }
+            Unit
         }
         if (result is RabhaResult.Available) refreshSession()
         return result
@@ -65,6 +66,7 @@ class AuthRepository @Inject constructor(
                 this.email = email
                 this.password = password
             }
+            Unit
         }
         if (result is RabhaResult.Available) refreshSession()
         return result
@@ -72,7 +74,7 @@ class AuthRepository @Inject constructor(
 
     suspend fun signOut(): RabhaResult<Unit> {
         val client = provider.client ?: return RabhaResult.Available(Unit)
-        val result = runCatchingResult { client.auth.signOut() }
+        val result = runCatchingResult { client.auth.signOut(); Unit }
         refreshSession()
         return result
     }

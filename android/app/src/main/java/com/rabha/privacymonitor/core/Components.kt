@@ -15,10 +15,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CloudOff
-import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Inbox
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -122,14 +120,14 @@ internal fun LoadingState(message: String = "Reading device data…") {
 }
 
 @Composable
-internal fun EmptyState(title: String, message: String, icon: ImageVector = Icons.Filled.Inbox) {
+internal fun EmptyState(title: String, message: String, icon: ImageVector = Icons.Filled.Info) {
     StateBlock(icon = icon, title = title, message = message, accent = RabhaColors.TextSecondary)
 }
 
 @Composable
 internal fun ErrorState(title: String, message: String, onRetry: (() -> Unit)? = null) {
     StateBlock(
-        icon = Icons.Filled.ErrorOutline,
+        icon = Icons.Filled.Warning,
         title = title,
         message = message,
         accent = RabhaColors.Danger,
@@ -140,7 +138,7 @@ internal fun ErrorState(title: String, message: String, onRetry: (() -> Unit)? =
 @Composable
 internal fun OfflineState(onRetry: (() -> Unit)? = null) {
     StateBlock(
-        icon = Icons.Filled.CloudOff,
+        icon = Icons.Filled.Warning,
         title = "You are offline",
         message = "Live panels are paused. Device data collected on this phone still works.",
         accent = RabhaColors.Warning,

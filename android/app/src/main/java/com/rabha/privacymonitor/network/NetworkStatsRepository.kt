@@ -61,14 +61,26 @@ class NetworkStatsRepository @Inject constructor(
         "Android returns no traffic numbers without Usage Access. Grant it in Settings → Special app access → Usage access."
     )
 
+    /**
+     * Device totals, summed from querySummary() buckets.
+     *
+     * querySummary() returns a NetworkStats iterator on every API level 29-35, while
+     * querySummaryForDevice() has a different return type in the android-35 stub than in the
+     * published documentation. One stable path avoids that difference entirely.
+     */
     private fun sumForDevice(type: Int, start: Long, end: Long): Pair<Long, Long> {
         val manager = statsManager ?: return 0L to 0L
-        val stats: NetworkStats = manager.querySummaryForDevice(type, null, start, end) ?: return 0L to 0L
+        val stats: NetworkStats = try {
+            manager.querySummary(type, null, start, end)
+        } catch (se: SecurityException) {
+            return 0L to 0L
+        }
         var rx = 0L
         var tx = 0L
+        val bucket = NetworkStats.Bucket()
         stats.use {
             while (it.hasNextBucket()) {
-                val bucket = it.nextBucket()
+                it.getNextBucket(bucket)
                 rx += bucket.rxBytes
                 tx += bucket.txBytes
             }
@@ -119,9 +131,10 @@ class NetworkStatsRepository @Inject constructor(
                     } catch (se: SecurityException) {
                         null
                     } ?: return
+                    val bucket = NetworkStats.Bucket()
                     stats.use {
                         while (it.hasNextBucket()) {
-                            val bucket = it.nextBucket()
+                            it.getNextBucket(bucket)
                             val entry = merged.getOrPut(bucket.uid) { LongArray(2) }
                             entry[0] += bucket.rxBytes
                             entry[1] += bucket.txBytes
