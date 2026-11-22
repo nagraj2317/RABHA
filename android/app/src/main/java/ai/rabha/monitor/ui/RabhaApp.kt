@@ -14,7 +14,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -24,9 +23,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import ai.rabha.monitor.ui.theme.fontOptions
 import ai.rabha.monitor.ui.theme.palettes
 import ai.rabha.monitor.ui.theme.schemeFor
+import ai.rabha.monitor.ui.theme.typographyWith
 
 enum class RabhaTab(val label: String) {
     Home("Home"),
@@ -60,7 +61,7 @@ fun RabhaApp() {
 
     MaterialTheme(
         colorScheme = schemeFor(palette),
-        typography = Typography(defaultFontFamily = font)
+        typography = typographyWith(font)
     ) {
         Scaffold(
             topBar = { TopAppBar(title = { Text("RABHA Privacy Monitor") }) },

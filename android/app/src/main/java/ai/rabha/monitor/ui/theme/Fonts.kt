@@ -20,3 +20,24 @@ val fontOptions: List<RabhaFont> = listOf(
     RabhaFont("Casual", fontFor("casual")),
     RabhaFont("Cursive", fontFor("cursive"))
 )
+
+fun typographyWith(font: FontFamily): androidx.compose.material3.Typography {
+    val base = androidx.compose.material3.Typography()
+    return base.copy(
+        displayLarge = base.displayLarge.copy(fontFamily = font),
+        displayMedium = base.displayMedium.copy(fontFamily = font),
+        displaySmall = base.displaySmall.copy(fontFamily = font),
+        headlineLarge = base.headlineLarge.copy(fontFamily = font),
+        headlineMedium = base.headlineMedium.copy(fontFamily = font),
+        headlineSmall = base.headlineSmall.copy(fontFamily = font),
+        titleLarge = base.titleLarge.copy(fontFamily = font),
+        titleMedium = base.titleMedium.copy(fontFamily = font),
+        titleSmall = base.titleSmall.copy(fontFamily = font),
+        bodyLarge = base.bodyLarge.copy(fontFamily = font),
+        bodyMedium = base.bodyMedium.copy(fontFamily = font),
+        bodySmall = base.bodySmall.copy(fontFamily = font),
+        labelLarge = base.labelLarge.copy(fontFamily = font),
+        labelMedium = base.labelMedium.copy(fontFamily = font),
+        labelSmall = base.labelSmall.copy(fontFamily = font)
+    )
+}
