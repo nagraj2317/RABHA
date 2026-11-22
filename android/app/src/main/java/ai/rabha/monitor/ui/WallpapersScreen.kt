@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -61,7 +62,7 @@ private fun LivePreview(mode: Int, accent: Int, modifier: Modifier) {
 @Composable
 fun WallpapersScreen() {
     val context = LocalContext.current
-    val accent = MaterialTheme.colorScheme.primary.value.toLong().let { 0xFFFFB020.toInt() }
+    val accent = MaterialTheme.colorScheme.primary.toArgb()
 
     LazyColumn(
         modifier = Modifier
@@ -92,7 +93,7 @@ fun WallpapersScreen() {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(name, style = MaterialTheme.typography.bodyLarge)
-                        Button(onClick = { applyLiveWallpaper(context, index) }) {
+                        Button(onClick = { applyLiveWallpaper(context, index, accent) }) {
                             Text("Apply")
                         }
                     }
@@ -102,10 +103,11 @@ fun WallpapersScreen() {
     }
 }
 
-private fun applyLiveWallpaper(context: Context, index: Int) {
+private fun applyLiveWallpaper(context: Context, index: Int, accent: Int = 0xFFFFB020.toInt()) {
     context.getSharedPreferences("rabha", Context.MODE_PRIVATE)
         .edit()
         .putInt("wallpaper_mode", index)
+        .putInt("wallpaper_accent", accent)
         .apply()
     val intent = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
     intent.putExtra(
