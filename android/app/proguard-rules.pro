@@ -1,0 +1,4 @@
+-keepattributes *Annotation*, InnerClasses, Signature
+-dontwarn org.slf4j.**
+-dontwarn kotlinx.serialization.**
+-keep class com.rabha.privacymonitor.supabase.dto.** { *; }

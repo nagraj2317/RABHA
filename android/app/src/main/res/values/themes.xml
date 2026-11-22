@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Rabha" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/rabha_black</item>
+        <item name="android:statusBarColor">@color/rabha_black</item>
+        <item name="android:navigationBarColor">@color/rabha_black</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:colorAccent">@color/rabha_amber</item>
+    </style>
+</resources>

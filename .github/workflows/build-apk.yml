@@ -1,0 +1,116 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+env:
+  WORKING_DIR: android
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install SDK platform and build tools
+        run: |
+          sdkmanager --install "platforms;android-35" "build-tools;35.0.0" "platform-tools"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.11.1"
+
+      - name: Write Supabase config
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          if [ -n "${{ secrets.SUPABASE_URL }}" ]; then
+            echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> local.properties
+          else
+            echo "SUPABASE_URL=" >> local.properties
+          fi
+          if [ -n "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+            echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> local.properties
+          else
+            echo "SUPABASE_ANON_KEY=" >> local.properties
+          fi
+          echo "sdk.dir=${ANDROID_SDK_ROOT}" >> local.properties
+
+      - name: Generate Gradle wrapper if missing
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          if [ ! -f gradlew ]; then
+            gradle wrapper --gradle-version 8.11.1
+          fi
+          chmod +x gradlew
+
+      - name: Build debug APK
+        working-directory: ${{ env.WORKING_DIR }}
+        run: ./gradlew assembleDebug --stacktrace --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: rabha-monitor-debug-apk
+          path: ${{ env.WORKING_DIR }}/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload build reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-reports
+          path: |
+            ${{ env.WORKING_DIR }}/app/build/reports/**
+            ${{ env.WORKING_DIR }}/app/build/outputs/logs/**
+          if-no-files-found: ignore
+          retention-days: 7
+
+  admin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: admin/package-lock.json
+
+      - name: Install
+        working-directory: admin
+        run: npm ci
+
+      - name: Typecheck and build
+        working-directory: admin
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: npm run build
+
+      - name: Upload admin bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: rabha-admin-dist
+          path: admin/dist
+          if-no-files-found: error
+          retention-days: 30

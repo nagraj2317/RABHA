@@ -1,0 +1,23 @@
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/gradle/wrapper/gradle-wrapper.jar
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# Admin
+admin/node_modules/
+admin/dist/
+admin/.env.local
+admin/.env
+
+# Misc
+.DS_Store
+*.log
+.env
+.env.local
